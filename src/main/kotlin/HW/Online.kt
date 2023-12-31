@@ -1,16 +1,33 @@
 fun agoToText() {
 
-    println("""Сколько секунд назад пользователь был онлайн?
+    println(
+        """Сколько секунд назад пользователь был онлайн?
         |Памятка: 3600 секунд = 1 час
         |86,400 секунд = 24 часа
-    """.trimMargin())
+        |172,800 скунд = 48 часов
+        |259,200 секунд = 72 часа
+    """.trimMargin()
+    )
     var input = readLine()?.toInt()
 
     val minutes = input!! / 60
     val hours = minutes!! / 60
 
 
+    val daysToText = when {
+        hours >= 24 && hours < 48 -> {
+            val days = hours / 24
+            "был(а) в сети вчера"
+        }
+        hours >= 48 && hours < 72 -> {
+            val days = hours / 24
+            "был(а) в сети позавчера"
+        }
+        else -> "был(а) в сети давно"
+    }
+
     val hoursToText = when {
+        hours >= 24 -> daysToText
         hours % 10 == 1 && hours != 11 -> "был(а) в сети $hours час назад"
         hours % 10 in 2..4 && hours !in 12..14 -> "был(а) в сети $hours часа назад"
         else -> "был(а) $hours часов назад"
