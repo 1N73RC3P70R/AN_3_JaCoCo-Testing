@@ -35,3 +35,9 @@ w
 G.idea/sonarlint/issuestore/2/a/2a45a911a8f1836b0b6c5b758962572012d8f8c3,9\a\9aed88f31eac276604c6355c1adcc0bce1f80fd6
 w
 G.idea/sonarlint/issuestore/0/5/05efc8b1657769a27696d478ded1e95f38737233,3\c\3c8c56407c35e5f5ebbd6c7250a79af8128a13a6
+G
+src/main/kotlin/Main.kt,d\8\d83ae3847b7d408136086cc5e9e95f5f7c126ed5
+L
+src/main/kotlin/HW/Online.kt,3\b\3b656eff33eb5312c1ae51f49fdc3a5018441d30
+P
+ src/main/kotlin/HW/Commission.kt,8\f\8f710a10132ff39a345f82aafee1585bbe4b0f3f

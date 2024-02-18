@@ -13,90 +13,99 @@ const val UPPER_LIMIT_ALL_MONTHLY: Double = 600_000.00
 const val UPPER_LIMIT_VK_DAILY = 15_000.00
 const val UPPER_LIMIT_VK_MONTHLY = 40_000.00
 
-
-var day = 1
 var totalSpentMonth = 0.0
 var commissionTotal = 0.0
-var amount = 0.0
+var transferAmount = 0.0
 var inputCardChoice = ""
 
 
-fun commission() {
-    usersCardChoice()
+fun commission(transferForMonth: Double = 0.0, transferAmount: Double, cardType: Int = 2) {
+    val cardTypes = listOf("Мир", "VK Pay", "Visa", "Mastercard", "Maestro")
+    inputCardChoice = cardTypes.getOrElse(cardType - 1) { "VK Pay" }
 
-    while (true) {
-        println("Введите сумму (или введите \"end\" чтобы выйти): ")
-        val input = readlnOrNull()
-        if (input.equals("end", ignoreCase = true)) {
-            println("Программа закрывается!")
-            exitProcess(0)
-        }
-        amount = input!!.toDoubleOrNull() ?: 0.0
+    if (cardType > 5 || cardType < 1) {
+        println("Карта не найдена!")
+        exitProcess(0)
+    }
 
+    totalSpentMonth = transferForMonth
 
-        if (amount <= ZERO) {
-            println("Неправильная сумма.")
-            continue
-        }
+    if (transferAmount <= ZERO) {
+        println("Неправильная сумма.")
+        return
+    }
 
+    val limitsCalculation = limits(cardType, transferAmount, totalSpentMonth)
+    if (limitsCalculation != null) {
+        totalSpentMonth += transferAmount
 
-        val limitsCalculation = limits()
-        if (limitsCalculation != null) {
-            val (remainingDaily, remainingMonthly) = limitsCalculation
-            totalSpentMonth += amount
-
-            when (inputCardChoice) {
-                "Visa", "Мир" -> standardCommissionCalculator(amount)
-                "Mastercard", "Maestro" -> commissionMastercardMaestro(amount)
-                "VK Pay" -> commissionVKPay(amount)
+        when (inputCardChoice) {
+            "Мир" -> {
+                standardCommissionCalculator(transferAmount)
+                println(limitsCalculation)
             }
-            dayPrompt()
+            "VK Pay" -> {
+                commissionVKPay(transferAmount)
+                println(limitsCalculation)
+            }
+            "Visa" -> {
+                standardCommissionCalculator(transferAmount)
+                println(limitsCalculation)
+            }
+            "Mastercard" -> {
+                commissionMastercardMaestro(transferAmount)
+                println(limitsCalculation)
+            }
+            "Maestro" -> {
+                commissionMastercardMaestro(transferAmount)
+                println(limitsCalculation)
+            }
         }
+        // dayPrompt()
     }
 }
 
-fun limits(): Pair<Double, Double>? {
+fun limits(cardType: Int, transferAmount: Double, totalSpentMonth: Double): String? {
     var dailyLimitAll: Double = 0.0
     var monthlyLimitAll: Double = 0.0
 
-    when (inputCardChoice) {
-        "Visa", "Мир" -> {
+    when (cardType) {
+        1, 3 -> {
             dailyLimitAll = UPPER_LIMIT_ALL_DAILY
             monthlyLimitAll = UPPER_LIMIT_ALL_MONTHLY
         }
-        "VK Pay" -> {
+        2 -> {
             dailyLimitAll = UPPER_LIMIT_VK_DAILY
             monthlyLimitAll = UPPER_LIMIT_VK_MONTHLY
         }
-        "Mastercard", "Maestro" -> {
+        4, 5 -> {
             dailyLimitAll = UPPER_LIMIT_ALL_DAILY
             monthlyLimitAll = UPPER_LIMIT_ALL_MONTHLY
         }
-        //проверка
         else -> {
             println("Лимит отсуствует.")
         }
     }
-    val remainingDaily = dailyLimitAll - amount
+    val remainingDaily = dailyLimitAll - transferAmount
 
     if (remainingDaily < 0) {
         println("Превышен дневной лимит на ${-remainingDaily} руб!")
         return null
     }
 
-    val remainingMonthly = monthlyLimitAll - (totalSpentMonth + amount)
-
+    val remainingMonthly = monthlyLimitAll - (totalSpentMonth + transferAmount)
 
     if (remainingMonthly < 0) {
         println("Превышен лимит на ${-remainingMonthly} руб.")
         return null
     }
-    return Pair(remainingDaily, remainingMonthly)
-}
 
+    return "Оставшийся лимит на сегодня: $remainingDaily руб.\n" +
+            "Оставшийся лимит на месяц: $remainingMonthly руб.\n"
+}
 fun dayPrompt() {
     println(
-        """Потрачено сегодня: $amount
+        """Потрачено сегодня: $transferAmount
             |Потрачено за месяц: $totalSpentMonth
             |Хотите ли продолжить?
             |1. Да
@@ -104,6 +113,7 @@ fun dayPrompt() {
         """.trimMargin()
     )
     //Это сделал так, как будто каждая операция проводиться на следующий день.
+    var day = 1
     day++
     when (readLine()?.toIntOrNull()) {
         1 -> println("Продолжаем. День $day.")
@@ -118,13 +128,40 @@ fun dayPrompt() {
 }
 
 
+fun standardCommissionCalculator(amount: Double) {
+
+    val commissionMirVisa = amount * STANDARD_RATE
+    val finalCommission = if (commissionMirVisa < MINIMUM_RATE) MINIMUM_RATE else commissionMirVisa
+    println("$finalCommission руб. - комиссия с $inputCardChoice")
+}
+
+fun commissionVKPay(amount: Double) {
+    commissionTotal = 0.0
+    println("Комиссия с VK Pay не взимается.")
+}
+
+fun commissionMastercardMaestro(amount: Double) {
+    if (amount in ZERO..UPPER_LIMIT_MASTERCARD_MAESTRO_DAILY) {
+        if (inputCardChoice == "Mastercard") {
+            println("Комиссия с Mastercard отсутствует.")
+        } else println("Комиссия с Maestro отсутствует.")
+
+        commissionTotal = 0.0
+
+    } else if ((amount > UPPER_LIMIT_MASTERCARD_MAESTRO_DAILY || totalSpentMonth > UPPER_LIMIT_MASTERCARD_MAESTRO_DAILY) && amount < UPPER_LIMIT_ALL_MONTHLY) {
+        println("${(amount * STANDARD_RATE_MASTERCARD_MAESTRO_PERCENT) + STANDARD_RATE_MASTERCARD_MAESTRO} руб. - комиссия с $inputCardChoice")
+    }
+}
+
+
+/*
 fun usersCardChoice() {
     println(
         """Выберите карту:
     | 1. Мир
     | 2. VK Pay
     | 3. Visa
-    | 4. Mastercard 
+    | 4. Mastercard
     | 5. Maestro
 """.trimMargin()
     )
@@ -142,26 +179,4 @@ fun usersCardChoice() {
         }
     }
 }
-
-fun standardCommissionCalculator(amount: Double) {
-
-    val commissionMirVisa = amount * STANDARD_RATE
-    val finalCommission = if (commissionMirVisa < MINIMUM_RATE) MINIMUM_RATE else commissionMirVisa
-    println("$finalCommission руб. - комиссия с $inputCardChoice")
-}
-
-fun commissionVKPay(amount: Double) {
-
-    commissionTotal = 0.0
-    println("Комиссия не взимается.")
-}
-
-fun commissionMastercardMaestro(amount: Double) {
-    if (amount in ZERO..UPPER_LIMIT_MASTERCARD_MAESTRO_DAILY) {
-        println("Комиссия с Mastercard отсутствует.")
-        commissionTotal = 0.0
-    } else if ((amount > UPPER_LIMIT_MASTERCARD_MAESTRO_DAILY || totalSpentMonth > UPPER_LIMIT_MASTERCARD_MAESTRO_DAILY) && amount < UPPER_LIMIT_ALL_MONTHLY) {
-        println("${(amount * STANDARD_RATE_MASTERCARD_MAESTRO_PERCENT) + STANDARD_RATE_MASTERCARD_MAESTRO} руб. - комиссия с $inputCardChoice")
-    }
-}
-
+ */
