@@ -1,5 +1,6 @@
 name: Kotlin CI with Gradle
-n:
+
+on:
   push:
     branches: '*'
   pull_request:
