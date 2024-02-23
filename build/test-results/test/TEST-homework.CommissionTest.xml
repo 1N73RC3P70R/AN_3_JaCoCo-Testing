@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="homework.CommissionTest" tests="15" skipped="0" failures="0" errors="0" timestamp="2024-02-23T20:04:30" hostname="K-K-K" time="0.01">
+  <properties/>
+  <testcase name="testCommissionForMir" classname="homework.CommissionTest" time="0.006"/>
+  <testcase name="testMastercardMaestroCommissionForAmountWithinLimit" classname="homework.CommissionTest" time="0.0"/>
+  <testcase name="testLimitCheckForUnknownCardType" classname="homework.CommissionTest" time="0.001"/>
+  <testcase name="testCommissionForMaestro" classname="homework.CommissionTest" time="0.0"/>
+  <testcase name="testLimitCheckForValidAmount" classname="homework.CommissionTest" time="0.0"/>
+  <testcase name="testCommissionForMastercardMaestro" classname="homework.CommissionTest" time="0.0"/>
+  <testcase name="testMastercardMaestroCommissionForAmountExceedingLimit" classname="homework.CommissionTest" time="0.0"/>
+  <testcase name="testCommissionForDefault" classname="homework.CommissionTest" time="0.001"/>
+  <testcase name="testCommissionCalculationForMirAgain" classname="homework.CommissionTest" time="0.0"/>
+  <testcase name="testInvalidAmountHandling" classname="homework.CommissionTest" time="0.0"/>
+  <testcase name="testLimitCheckWhenMonthlyLimitExceeded" classname="homework.CommissionTest" time="0.0"/>
+  <testcase name="testLimitCheckWhenDailyLimitExceeded" classname="homework.CommissionTest" time="0.0"/>
+  <testcase name="testCommissionCalculationForMir" classname="homework.CommissionTest" time="0.0"/>
+  <testcase name="testCommissionCalculationForVKPay" classname="homework.CommissionTest" time="0.0"/>
+  <testcase name="testCommissionForVisa" classname="homework.CommissionTest" time="0.0"/>
+  <system-out><![CDATA[Оставшийся лимит на сегодня: 149000.0 руб.
+Оставшийся лимит на месяц: 599000.0 руб.
+
+35.0 руб. - комиссия с Visa
+Комиссия с Mastercard отсутствует.
+Лимит отсуствует.
+Оставшийся лимит на сегодня: 149000.0 руб.
+Оставшийся лимит на месяц: 598998.0 руб.
+
+Комиссия с Mastercard отсутствует.
+Оставшийся лимит на сегодня: 149000.0 руб.
+Оставшийся лимит на месяц: 599000.0 руб.
+
+Оставшийся лимит на сегодня: 149000.0 руб.
+Оставшийся лимит на месяц: 589000.0 руб.
+
+Комиссия с Mastercard отсутствует.
+500.0 руб. - комиссия с Mastercard
+Оставшийся лимит на сегодня: 14000.0 руб.
+Оставшийся лимит на месяц: 38900.0 руб.
+
+Комиссия с VK Pay не взимается.
+35.0 руб. - комиссия с Visa
+Лимит отсуствует.
+Оставшийся лимит на сегодня: 140000.0 руб.
+Оставшийся лимит на месяц: 0.0 руб.
+
+Превышен дневной лимит на 50000.0 руб!
+35.0 руб. - комиссия с Visa
+Комиссия с VK Pay не взимается.
+Оставшийся лимит на сегодня: 149000.0 руб.
+Оставшийся лимит на месяц: 598900.0 руб.
+
+35.0 руб. - комиссия с Visa
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

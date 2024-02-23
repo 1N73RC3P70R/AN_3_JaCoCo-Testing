@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Commission.kt</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AndroidNetology3</a> &gt; <a href="index.source.html" class="el_package">homework</a> &gt; <span class="el_source">Commission.kt</span></div><h1>Commission.kt</h1><pre class="source lang-java linenums">package homework
+
+const val MINIMUM_RATE: Double = 35.0
+const val STANDARD_RATE: Double = 0.0075
+const val STANDARD_RATE_MASTERCARD_MAESTRO = 20
+const val STANDARD_RATE_MASTERCARD_MAESTRO_PERCENT = 0.006
+const val ZERO: Double = 0.0
+const val UPPER_LIMIT_MASTERCARD_MAESTRO_DAILY: Double = 75_000.00
+const val UPPER_LIMIT_ALL_DAILY: Double = 150_000.00
+const val UPPER_LIMIT_ALL_MONTHLY: Double = 600_000.00
+const val UPPER_LIMIT_VK_DAILY = 15_000.00
+const val UPPER_LIMIT_VK_MONTHLY = 40_000.00
+
+<span class="fc" id="L14">fun commission(</span>
+<span class="nc" id="L15">    transferForMonth: Double = 0.0,</span>
+    transferAmount: Double,
+<span class="fc" id="L17">    cardType: Int = 2</span>
+): Double {
+<span class="fc" id="L19">    val totalSpentMonth = transferForMonth + transferAmount</span>
+<span class="fc bfc" id="L20" title="All 2 branches covered.">    if (!checkLimits(cardType, transferAmount, totalSpentMonth)) {</span>
+<span class="fc" id="L21">        return 0.0</span>
+    }
+
+<span class="fc" id="L24">    return calculateCommission(transferAmount, cardType)</span>
+}
+
+fun checkLimits(cardType: Int, transferAmount: Double, totalSpentMonth: Double): Boolean {
+<span class="fc bfc" id="L28" title="All 4 branches covered.">    val dailyLimit = when (cardType) {</span>
+<span class="fc" id="L29">        1, 3 -&gt; UPPER_LIMIT_ALL_DAILY</span>
+<span class="fc" id="L30">        2 -&gt; UPPER_LIMIT_VK_DAILY</span>
+<span class="fc" id="L31">        4, 5 -&gt; UPPER_LIMIT_ALL_DAILY</span>
+        else -&gt; {
+<span class="fc" id="L33">            println(&quot;Лимит отсуствует.&quot;)</span>
+<span class="fc" id="L34">            return false</span>
+        }
+    }
+
+<span class="pc bpc" id="L38" title="1 of 4 branches missed.">    val monthlyLimit = when (cardType) {</span>
+<span class="fc" id="L39">        1, 3 -&gt; UPPER_LIMIT_ALL_MONTHLY</span>
+<span class="fc" id="L40">        2 -&gt; UPPER_LIMIT_VK_MONTHLY</span>
+<span class="fc" id="L41">        4, 5 -&gt; UPPER_LIMIT_ALL_MONTHLY</span>
+        else -&gt; {
+<span class="nc" id="L43">            println(&quot;Лимит отсуствует.&quot;)</span>
+<span class="nc" id="L44">            return false</span>
+        }
+    }
+
+<span class="fc" id="L48">    val remainingDaily = dailyLimit - transferAmount</span>
+<span class="fc bfc" id="L49" title="All 2 branches covered.">    if (remainingDaily &lt; 0) {</span>
+<span class="fc" id="L50">        println(&quot;Превышен дневной лимит на ${-remainingDaily} руб!&quot;)</span>
+<span class="fc" id="L51">        return false</span>
+    }
+
+<span class="fc" id="L54">    val remainingMonthly = monthlyLimit - totalSpentMonth</span>
+<span class="pc bpc" id="L55" title="1 of 2 branches missed.">    if (remainingMonthly &lt; 0) {</span>
+<span class="nc" id="L56">        println(&quot;Превышен лимит на ${-remainingMonthly} руб.&quot;)</span>
+<span class="nc" id="L57">        return false</span>
+    }
+
+<span class="fc" id="L60">    println(&quot;Оставшийся лимит на сегодня: $remainingDaily руб.\n&quot; +</span>
+<span class="fc" id="L61">            &quot;Оставшийся лимит на месяц: $remainingMonthly руб.\n&quot;)</span>
+<span class="fc" id="L62">    return true</span>
+}
+
+fun calculateCommission(transferAmount: Double, cardType: Int): Double {
+<span class="pc bpc" id="L66" title="1 of 5 branches missed.">    return when (cardType) {</span>
+        1 -&gt; {
+<span class="fc" id="L68">            standardCommissionCalculator(transferAmount)</span>
+<span class="fc" id="L69">            MINIMUM_RATE</span>
+        }
+        2 -&gt; {
+<span class="fc" id="L72">            commissionVKPay(transferAmount)</span>
+<span class="fc" id="L73">            ZERO</span>
+        }
+        3 -&gt; {
+<span class="fc" id="L76">            standardCommissionCalculator(transferAmount)</span>
+<span class="fc" id="L77">            MINIMUM_RATE</span>
+        }
+<span class="fc" id="L79">        4, 5 -&gt; commissionMastercardMaestro(transferAmount)</span>
+<span class="nc" id="L80">        else -&gt; 0.0</span>
+    }
+}
+
+fun standardCommissionCalculator(amount: Double) {
+<span class="fc" id="L85">    val commissionMirVisa = amount * STANDARD_RATE</span>
+<span class="pc bpc" id="L86" title="1 of 2 branches missed.">    val finalCommission = if (commissionMirVisa &lt; MINIMUM_RATE) MINIMUM_RATE else commissionMirVisa</span>
+<span class="pc bpc" id="L87" title="1 of 2 branches missed.">    println(&quot;$finalCommission руб. - комиссия с ${if (amount &lt; 0) &quot;VK Pay&quot; else &quot;Visa&quot;}&quot;)</span>
+<span class="fc" id="L88">}</span>
+
+fun commissionVKPay(amount: Double) {
+<span class="fc" id="L91">    println(&quot;Комиссия с VK Pay не взимается.&quot;)</span>
+<span class="fc" id="L92">}</span>
+
+fun commissionMastercardMaestro(amount: Double): Double {
+<span class="fc bfc" id="L95" title="All 2 branches covered.">    return if (amount &lt;= UPPER_LIMIT_MASTERCARD_MAESTRO_DAILY) {</span>
+<span class="fc" id="L96">        println(&quot;Комиссия с Mastercard отсутствует.&quot;)</span>
+<span class="fc" id="L97">        ZERO</span>
+    } else {
+<span class="fc" id="L99">        val commission = (amount * STANDARD_RATE_MASTERCARD_MAESTRO_PERCENT) + STANDARD_RATE_MASTERCARD_MAESTRO</span>
+<span class="fc" id="L100">        println(&quot;$commission руб. - комиссия с Mastercard&quot;)</span>
+<span class="fc" id="L101">        commission</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>
